@@ -1,0 +1,13 @@
+[Unit]
+Description=ergon: initialise Noctalia greeter state
+ConditionPathExists=!/var/lib/noctalia-greeter/greeter.toml
+After=systemd-tmpfiles-setup.service
+Before=greetd.service
+
+[Service]
+Type=oneshot
+Environment=GREETER_USER=greetd
+ExecStart=/usr/bin/noctalia-greeter-apply-appearance --setup-system
+
+[Install]
+WantedBy=multi-user.target

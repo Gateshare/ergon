@@ -1,0 +1,9 @@
+[Unit]
+Description=ergon: seed default user configuration
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/ergon-user-defaults
+
+[Install]
+WantedBy=default.target

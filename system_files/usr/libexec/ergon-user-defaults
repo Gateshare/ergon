@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# Copy ergon's default user config into $HOME, never overwriting existing files.
+# Runs at every login, so files added to the image later reach existing users too.
+set -euo pipefail
+src=/usr/share/ergon/user-defaults
+cd "$src"
+find . -type f -print0 | while IFS= read -r -d '' f; do
+	dest="$HOME/${f#./}"
+	[[ -e "$dest" ]] && continue
+	install -Dm0644 "$src/${f#./}" "$dest"
+done

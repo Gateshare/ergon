@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+# Install the Flatpaks listed in /usr/share/ergon/flatpaks.list. Re-runs only when the list changes.
+set -euo pipefail
+list=/usr/share/ergon/flatpaks.list
+stamp=/var/lib/ergon/flatpaks.sha256
+
+sum=$(sha256sum "$list" | cut -d' ' -f1)
+[[ -f "$stamp" && "$(cat "$stamp")" == "$sum" ]] && exit 0
+
+flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+mapfile -t apps < <(grep -Ev '^\s*(#|$)' "$list")
+if ((${#apps[@]})); then
+	flatpak install --system --noninteractive --or-update flathub "${apps[@]}"
+fi
+
+install -Dm0644 /dev/null "$stamp"
+echo "$sum" >"$stamp"

@@ -1,0 +1,3 @@
+# Flathub apps ergon installs system-wide on boot (one app ID per line).
+# Removing a line here doesn't uninstall the app.
+net.davidotek.pupgui2

@@ -1,0 +1,3 @@
+# Unlock amdgpu power/fan/overclock controls for CoreCtrl.
+kargs = ["amdgpu.ppfeaturemask=0xffffffff"]
+match-architectures = ["x86_64"]
