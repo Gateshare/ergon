@@ -52,12 +52,16 @@ jobs:
       # The podman image defaults to fuse-overlayfs, which needs /dev/fuse (absent on the runner
       # host). As privileged root on a real Docker volume, kernel overlay works and is faster.
       # Podman caches that choice in the storage (.has-mount-program), which lives on the
-      # persistent volume, so drop the cache too.
+      # persistent volume, so drop the cache too. "fsync=0" is a fuse-overlayfs-only mount option
+      # that kernel overlay rejects ("invalid argument").
       - name: Install build tools
         run: |
           dnf -y install --setopt=install_weak_deps=False git jq
           git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-          sed -i 's|^mount_program = "/usr/bin/fuse-overlayfs"|#&|' /etc/containers/storage.conf
+          sed -i \
+            -e 's|^mount_program = "/usr/bin/fuse-overlayfs"|#&|' \
+            -e 's|^mountopt = "nodev,fsync=0"|mountopt = "nodev"|' \
+            /etc/containers/storage.conf
           rm -f /var/lib/containers/storage/overlay/.has-mount-program
           podman info --format 'storage: {{.Store.GraphDriverName}} {{json .Store.GraphStatus}}'
 
