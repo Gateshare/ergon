@@ -56,7 +56,7 @@ jobs:
       # that kernel overlay rejects ("invalid argument").
       - name: Install build tools
         run: |
-          dnf -y install --setopt=install_weak_deps=False git jq
+          dnf -y install --setopt=install_weak_deps=False git jq /usr/bin/envsubst  # envsubst: cosign-installer
           git config --global --add safe.directory "${GITHUB_WORKSPACE}"
           sed -i \
             -e 's|^mount_program = "/usr/bin/fuse-overlayfs"|#&|' \
