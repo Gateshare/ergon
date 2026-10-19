@@ -62,15 +62,23 @@ published as `ghcr.io/gateshare/ergon`.
 
 Both workflows run on Gateshare's **self-hosted** runners (`runs-on: [self-hosted, linux, x64]`), not
 GitHub-hosted ones. To target a specific runner, add its label to that list in both workflow files.
-The runner must be allowed to run jobs for this repo (org runner group settings) and needs:
 
-- Linux x86_64 with rootless **podman 5+** that can run `--privileged` containers (rechunking), plus `git` and `jq`
-- About **50 GB free disk**. Each build makes an ~8 GB image plus a rechunked copy; the workflow
-  deletes them afterwards and keeps only the cached base image
-- For **disk images** (ISO/qcow2) only: passwordless `sudo` for podman, since bootc-image-builder runs as root
+The runners have Docker but not podman, so the image build runs **inside the official podman
+container** (`quay.io/podman/stable`, privileged) and nothing is installed on the host. The job
+installs its own `git` and `jq` in that container. Podman's storage is the named Docker volume
+`ergon-podman-storage`, which keeps the base image cached between builds; each build deletes its
+own images at the end. The host needs:
+
+- Docker, usable by the runner user, with privileged containers allowed
+- About **50 GB free** for Docker (each build makes an ~8 GB image plus a rechunked copy)
+- To reclaim the cache entirely: `docker volume rm ergon-podman-storage`
 
 The template's "maximize build space" step, which deletes preinstalled software, is removed
 because it would modify the runner machine.
+
+**Disk images (ISO/qcow2)** still expect podman and passwordless `sudo` on the runner host, because
+bootc-image-builder runs as root, so the **Build disk images** workflow doesn't work on these runners yet.
+Build ISOs locally with `just build-iso` in the meantime.
 
 ## Install
 

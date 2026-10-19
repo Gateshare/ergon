@@ -16,10 +16,11 @@ on:
 env:
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
 
-# Runs on Gateshare's self-hosted runners (persistent machines, not throwaway VMs), so this
-# workflow must not modify the host and must clean up the images it builds. Runner needs:
-# Linux x86_64, rootless podman 5+ (privileged containers allowed, for rechunking), git, jq,
-# and ~50 GB free disk.
+# Runs on Gateshare's self-hosted runners, which have Docker but not podman. The job runs inside
+# the official podman image (privileged, so podman can build and rpm-ostree can rechunk), so
+# nothing is installed on the host. Podman's storage is the named Docker volume
+# "ergon-podman-storage": the base image stays cached between builds, and the last step deletes
+# this build's own images. Host needs ~50 GB free for Docker.
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -29,6 +30,12 @@ jobs:
   build_push:
     name: Build and push image
     runs-on: [self-hosted, linux, x64]
+    container:
+      image: quay.io/podman/stable:v5.8.9
+      options: --privileged
+      volumes:
+        # Named, not the image's anonymous VOLUME: the runner never removes anonymous volumes.
+        - ergon-podman-storage:/var/lib/containers
 
     permissions:
       contents: read
@@ -36,6 +43,10 @@ jobs:
       id-token: write
 
     steps:
+      # Before checkout: a missing git makes checkout fall back to a tarball without .git.
+      - name: Install build tools
+        run: dnf -y install --setopt=install_weak_deps=False git jq
+
       # These stage versions are pinned by https://github.com/renovatebot/renovate
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -117,13 +128,15 @@ jobs:
 
       # These `if` statements are so that pull requests for your custom images do not make it publish any packages under your name without you knowing
       # They also check if the runner is on the default branch so that things like the merge queue (if you enable it), are going to work
+      # podman login instead of docker/login-action: there's no docker CLI in the podman container.
+      # --compat-auth-file also writes ~/.docker/config.json, which is where cosign looks.
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${GHCR_TOKEN}" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin \
+            --compat-auth-file "${HOME}/.docker/config.json"
 
       - name: Push To GHCR
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
@@ -164,11 +177,14 @@ jobs:
           # use old bundle format, so we can use newer cosign 3.X.X instead of 2.X.X
           cosign sign -y --new-bundle-format=false --use-signing-config=false --key env://COSIGN_PRIVATE_KEY ${IMAGE_REGISTRY}/${IMAGE_NAME}@${DIGEST}
 
-      # Self-hosted runners keep their container storage between jobs: drop this build's images
-      # (each is ~8 GB, plus the rechunked copy). The base image stays cached for the next build.
-      - name: Clean up local images
+      # The ergon-podman-storage volume outlives the job: drop this build's images (each ~8 GB,
+      # plus the rechunked copy) and keep the cached base image. HOME is the runner's mounted
+      # temp dir, so remove the registry login written there too.
+      - name: Clean up local images and login
         if: always()
         run: |
+          podman logout --all || true
+          rm -f "${HOME}/.docker/config.json"
           [[ -n "${IMAGE_NAME:-}" ]] || exit 0  # failed before naming the image: nothing of ours to remove
           podman images --filter "reference=*/${IMAGE_NAME}" --filter "reference=${IMAGE_NAME}" --format '{{.ID}}' \
             | sort -u | xargs -r podman rmi -f || true
