@@ -36,6 +36,9 @@ jobs:
       volumes:
         # Named, not the image's anonymous VOLUME: the runner never removes anonymous volumes.
         - ergon-podman-storage:/var/lib/containers
+    defaults:
+      run:
+        shell: bash
 
     permissions:
       contents: read
@@ -44,8 +47,12 @@ jobs:
 
     steps:
       # Before checkout: a missing git makes checkout fall back to a tarball without .git.
+      # The workspace is owned by the host's runner user but steps run as root here, so git
+      # needs it marked safe (checkout only does that for its own step).
       - name: Install build tools
-        run: dnf -y install --setopt=install_weak_deps=False git jq
+        run: |
+          dnf -y install --setopt=install_weak_deps=False git jq
+          git config --global --add safe.directory "${GITHUB_WORKSPACE}"
 
       # These stage versions are pinned by https://github.com/renovatebot/renovate
       - name: Checkout
