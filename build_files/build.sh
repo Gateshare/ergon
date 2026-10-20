@@ -52,6 +52,13 @@ GAMING=(
 	mangohud
 )
 
+# Containers: podman itself is in base-main; these are the front ends for dev environments.
+CONTAINERS=(
+	distrobox
+	toolbox
+	podman-compose
+)
+
 FONTS=(
 	google-noto-sans-fonts
 	google-noto-color-emoji-fonts
@@ -61,7 +68,7 @@ FONTS=(
 # gnome-keyring is only a weak dependency of niri/noctalia; KWallet is the secret service here,
 # and two providers would race for org.freedesktop.secrets.
 dnf5 -y install --enablerepo=fedora-multimedia --exclude=gnome-keyring \
-	"${DESKTOP[@]}" "${APPS[@]}" "${GAMING[@]}" "${FONTS[@]}"
+	"${DESKTOP[@]}" "${APPS[@]}" "${GAMING[@]}" "${CONTAINERS[@]}" "${FONTS[@]}"
 
 ### Noctalia greeter from Terra (Fedora 44+), and nothing else from Terra.
 # Installed in its own transaction, restricted to the greeter package so Terra can't
