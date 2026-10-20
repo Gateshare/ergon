@@ -59,6 +59,12 @@ CONTAINERS=(
 	podman-compose
 )
 
+# Basics a desktop-less base doesn't guarantee.
+TOOLS=(
+	git
+	xdg-user-dirs
+)
+
 FONTS=(
 	google-noto-sans-fonts
 	google-noto-color-emoji-fonts
@@ -68,7 +74,7 @@ FONTS=(
 # gnome-keyring is only a weak dependency of niri/noctalia; KWallet is the secret service here,
 # and two providers would race for org.freedesktop.secrets.
 dnf5 -y install --enablerepo=fedora-multimedia --exclude=gnome-keyring \
-	"${DESKTOP[@]}" "${APPS[@]}" "${GAMING[@]}" "${CONTAINERS[@]}" "${FONTS[@]}"
+	"${DESKTOP[@]}" "${APPS[@]}" "${GAMING[@]}" "${CONTAINERS[@]}" "${TOOLS[@]}" "${FONTS[@]}"
 
 ### Noctalia greeter from Terra (Fedora 44+), and nothing else from Terra.
 # Installed in its own transaction, restricted to the greeter package so Terra can't
