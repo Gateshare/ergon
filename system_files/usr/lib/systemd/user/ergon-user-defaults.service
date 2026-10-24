@@ -1,5 +1,7 @@
 [Unit]
 Description=ergon: seed default user configuration
+# Before the niri session (and so Noctalia, whose templates also write some of these files).
+Before=graphical-session-pre.target
 
 [Service]
 Type=oneshot

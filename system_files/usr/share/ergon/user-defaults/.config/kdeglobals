@@ -3,4 +3,4 @@ TerminalApplication=kitty
 TerminalService=kitty.desktop
 
 [Icons]
-Theme=breeze-dark
+Theme=Papirus-Dark

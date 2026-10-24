@@ -1,0 +1,3 @@
+# ergon: default cursor theme for everything that doesn't set one (greeter, Xwayland, Flatpaks).
+[Icon Theme]
+Inherits=Bibata-Modern-Classic

@@ -1,0 +1,7 @@
+{
+  "settings.stat.label": "Statistic",
+  "settings.stat.cpu": "CPU usage",
+  "settings.stat.ram": "RAM usage",
+  "settings.warn_percent.label": "Yellow above (%)",
+  "settings.critical_percent.label": "Red from (%)"
+}
