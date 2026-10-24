@@ -60,6 +60,11 @@ visualization = "none"
 network_speed_compact = true
 label_min_width = 36
 
+# Brightness keys also work on external monitors, over DDC/CI (ddcutil and i2c-dev come with the
+# base image; laptop panels keep using the kernel backlight).
+[brightness]
+enable_ddcutil = true
+
 # Network speeds always stay in the normal colour.
 [system.monitor]
 net_rx_critical_threshold = 0
