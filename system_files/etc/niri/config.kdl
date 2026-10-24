@@ -116,7 +116,8 @@ input {
 // https://niri-wm.github.io/niri/Configuration:-Layout
 layout {
     // Set gaps around windows in logical pixels.
-    gaps 16
+    // ergon: a quarter tighter than niri's default of 16.
+    gaps 12
 
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -172,13 +173,15 @@ layout {
         // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
 
         // Color of the ring on the active monitor.
-        active-color "#7fc8ff"
+        // ergon: terracotta from the ergon logo (niri default "#7fc8ff").
+        active-color "#c8603f"
 
         // Color of the ring on inactive monitors.
         //
         // The focus ring only draws around the active window, so the only place
         // where you can see its inactive-color is on other monitors.
-        inactive-color "#505050"
+        // ergon: the palette's outline colour (niri default "#505050").
+        inactive-color "#45454f"
 
         // You can also use gradients. They take precedence over solid colors.
         // Gradients are rendered the same as CSS linear-gradient(angle, from, to).
@@ -203,8 +206,9 @@ layout {
         off
 
         width 4
-        active-color "#ffc87f"
-        inactive-color "#505050"
+        // ergon: logo colours (niri defaults "#ffc87f" / "#505050").
+        active-color "#c8603f"
+        inactive-color "#45454f"
 
         // Color of the border around windows that request your attention.
         urgent-color "#9b0000"

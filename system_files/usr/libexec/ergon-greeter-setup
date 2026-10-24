@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+# Initialise the Noctalia greeter's state in /var, and give it ergon's palette and wallpaper until
+# the user syncs their own (`noctalia msg greeter-sync` replaces sync.toml's appearance).
+set -euo pipefail
+state=/var/lib/noctalia-greeter
+if [[ ! -e $state/greeter.toml ]]; then
+	GREETER_USER=greetd /usr/bin/noctalia-greeter-apply-appearance --setup-system
+fi
+grep -q '^\[appearance' "$state/sync.toml" 2>/dev/null && exit 0
+cat /usr/share/ergon/greeter-appearance.toml >>"$state/sync.toml"

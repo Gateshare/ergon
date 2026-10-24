@@ -1,0 +1,80 @@
+# ergon defaults for Noctalia. Copied into ~/.config/noctalia once; Noctalia merges every *.toml
+# here, and anything changed in its Settings window (~/.local/state/noctalia/settings.toml) wins.
+
+[theme]
+mode = "dark"
+source = "custom"
+custom_palette = "ergon" # palettes/ergon.json
+
+# Apply the palette to apps too: KDE/Qt (KColorScheme, read by qt6ct), kitty, GTK, btop, the
+# Starship prompt, and Firefox through the Pywalfox extension (installed by /etc/firefox/policies;
+# RPM Firefox only, the Flatpak can't reach Noctalia's native-messaging host).
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids = ["kcolorscheme", "kitty", "gtk3", "gtk4", "btop", "starship"]
+enable_community_templates = true
+community_ids = ["pywalfox"]
+
+[wallpaper]
+directory = "/usr/share/backgrounds/ergon" # what the wallpaper picker browses
+
+[wallpaper.default]
+path = "/usr/share/backgrounds/ergon/ergon-dark.jpg"
+
+# Bar: no launcher/wallpaper buttons on the left, and no control-center or session buttons on
+# the right (they stay on Mod+Space, Mod+S / right-click on the bar, and Mod+X).
+[bar.default]
+start = ["workspaces"]
+center = ["clock"]
+end = ["cpu", "ram", "net-down", "net-up", "media", "tray", "notifications", "clipboard",
+       "network", "bluetooth", "volume", "brightness", "battery"]
+
+[widget.clock]
+format = "{:%a %d %b  %H:%M}"
+tooltip_format = "{:%A, %d %B %Y}"
+
+[widget.network]
+show_label = false # icon only, no network name or interface
+
+# CPU and RAM: normal colour, yellow above 80 %, red from 90 % (ergon's plugin, see
+# /usr/share/ergon/noctalia-plugins/sysmon).
+[widget.cpu]
+type = "ergon/sysmon:usage"
+stat = "cpu"
+
+[widget.ram]
+type = "ergon/sysmon:usage"
+stat = "ram"
+
+[widget.net-down]
+type = "sysmon"
+stat = "net_rx"
+visualization = "none"
+network_speed_compact = true
+label_min_width = 36
+
+[widget.net-up]
+type = "sysmon"
+stat = "net_tx"
+visualization = "none"
+network_speed_compact = true
+label_min_width = 36
+
+# Brightness keys also work on external monitors, over DDC/CI (ddcutil and i2c-dev come with the
+# base image; laptop panels keep using the kernel backlight).
+[brightness]
+enable_ddcutil = true
+
+# Network speeds always stay in the normal colour.
+[system.monitor]
+net_rx_critical_threshold = 0
+net_tx_critical_threshold = 0
+
+[plugins]
+enabled = ["ergon/sysmon"]
+
+[[plugins.source]]
+name = "ergon"
+kind = "path"
+location = "/usr/share/ergon/noctalia-plugins"
+enabled = true

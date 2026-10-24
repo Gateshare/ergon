@@ -1,0 +1,28 @@
+
+# ergon default greeter look (appended by ergon-greeter-setup); the dark variant of
+# ~/.config/noctalia/palettes/ergon.json.
+[appearance]
+scheme = "Synced"
+theme_mode = "dark"
+
+[appearance.palette]
+primary = "#d8704c"
+on_primary = "#1c1c23"
+secondary = "#dcb48c"
+on_secondary = "#1c1c23"
+tertiary = "#7fb3aa"
+on_tertiary = "#1c1c23"
+error = "#ef5b62"
+on_error = "#1c1c23"
+surface = "#1c1c23"
+on_surface = "#ece6e1"
+surface_variant = "#24242d"
+on_surface_variant = "#b3aca6"
+outline = "#45454f"
+shadow = "#000000"
+hover = "#c8603f"
+on_hover = "#1c1c23"
+
+[appearance.wallpaper]
+path = "/usr/share/backgrounds/ergon/ergon-dark.jpg"
+fill_mode = "crop"

@@ -15,10 +15,12 @@ Built from [ublue-os/image-template](https://github.com/ublue-os/image-template)
 |---|---|
 | Base | `ghcr.io/ublue-os/base-main:44` (Fedora 44, no desktop) |
 | Desktop | niri, Noctalia v5 (bar, launcher, notifications, lock screen, idle, clipboard, polkit agent), xwayland-satellite |
-| Login | greetd + [noctalia-greeter](https://github.com/noctalia-dev/noctalia-greeter) (from Terra, the only Terra package) |
+| Login | greetd + [noctalia-greeter](https://github.com/noctalia-dev/noctalia-greeter) (from Terra; Starship is the only other Terra package) |
 | Portals | GNOME (screencast/screenshot), KDE (file dialogs), GTK; config in `/etc/xdg-desktop-portal/niri-portals.conf` |
 | Apps | kitty, Dolphin, Kate, KWrite, Ark, Gwenview, VLC, KCalc, btop, KDE Partition Manager, KWallet, CoreCtrl |
-| Theming | qt6ct + Kvantum, Breeze style and icons; `QT_QPA_PLATFORMTHEME=qt6ct` set session-wide |
+| Theming | ergon palette for Noctalia (from the logo), applied to Qt/KDE, kitty, GTK, btop and Firefox through Noctalia's templates; qt6ct + Kvantum, Breeze style; Papirus-Dark icons with terracotta folders; Bibata Modern Classic cursor; `QT_QPA_PLATFORMTHEME=qt6ct` set session-wide |
+| Branding | ergon Plymouth boot splash, wallpapers in `/usr/share/backgrounds/ergon`, greeter palette and wallpaper, fastfetch logo, `os-release` URLs/colour |
+| Shell | [Starship](https://starship.rs) prompt: short path, git branch/status, `user@host` only over SSH, coloured from the Noctalia palette; fastfetch with the ergon logo |
 | Gaming | Steam (negativo17), steam-devices, gamescope, gamemode, MangoHud; ProtonUp-Qt (Flatpak) |
 | Fonts | Noto Sans, Noto Color Emoji, JetBrains Mono |
 
@@ -111,10 +113,22 @@ just build && just build-vm && just run-vm
 
 ## After the first boot
 
-- **Login**: greetd shows the Noctalia greeter. To sync your wallpaper and colours to it, run `noctalia msg greeter-sync`.
-- **Qt colours**: in Noctalia, go to *Settings → Templates* and enable **KColorScheme**, then in
-  `qt6ct` (*Appearance*) pick the `noctalia (KColorScheme)` colour scheme. ergon defaults to the Breeze
-  style. Kvantum is installed, but Kvantum themes bring their own colours and override Noctalia's palette.
+- **Login**: greetd shows the Noctalia greeter with ergon's palette and wallpaper. To sync your own
+  wallpaper and colours to it, run `noctalia msg greeter-sync`.
+- **Theme**: Noctalia starts on the `ergon` palette (`~/.config/noctalia/palettes/ergon.json`, selected in
+  `~/.config/noctalia/ergon.toml`) and the ergon wallpaper. Anything you pick in Noctalia's settings overrides
+  those. Its templates write the palette into KDE/Qt (KColorScheme, which qt6ct loads), kitty, GTK and btop.
+  ergon defaults to the Breeze style. Kvantum is installed, but Kvantum themes bring their own colours and
+  override Noctalia's palette.
+- **Bar**: workspaces on the left; date and time in the middle; CPU, RAM, network speed, then the usual
+  status icons on the right. CPU and RAM turn yellow above 80 % and red from 90 % (a small Noctalia plugin in
+  `/usr/share/ergon/noctalia-plugins/sysmon`). There are no launcher, wallpaper, control-center or session
+  buttons: use `Mod+Space`, `Mod+S` (or right-click the bar) and `Mod+X`.
+- **Prompt**: Starship, configured in `~/.config/starship.toml`. Noctalia's `starship` template keeps the
+  palette block at the end of that file in sync with the theme. Set `ergon_starship_disable=1` early in
+  `~/.bashrc` to go back to Fedora's prompt.
+- **Firefox** (the RPM, not the Flatpak): the Pywalfox extension is installed by policy, and Noctalia's
+  `pywalfox` template themes Firefox with the palette. Restart Firefox once after the first login.
 - **KWallet**: to have it unlock at login, create a wallet named `kdewallet` (Blowfish) with
   your login password in KWallet Manager.
 - **CoreCtrl**: ergon adds the kernel argument `amdgpu.ppfeaturemask=0xffffffff` (via
@@ -122,8 +136,9 @@ just build && just build-vm && just run-vm
   if you don't want it.
 - **Flatpaks**: on boot, `ergon-flatpaks.service` installs the apps listed in
   `/usr/share/ergon/flatpaks.list` from Flathub, and re-runs only when the list changes.
-- **Per-user defaults** (qt6ct, Dolphin's terminal = kitty, Breeze Dark icons) are copied from
-  `/usr/share/ergon/user-defaults` into your home at login, without overwriting anything that exists.
+- **Per-user defaults** (Noctalia palette, theme and bar, Starship, qt6ct, Dolphin's terminal = kitty, Papirus-Dark icons)
+  are copied from `/usr/share/ergon/user-defaults` into your home at login, without overwriting anything that
+  exists. To pick up a newer default, delete your copy (for example `~/.config/qt6ct/qt6ct.conf`) and log in again.
 
 ## Layout
 
@@ -134,9 +149,16 @@ system_files/              copied onto / after packages are installed
   etc/niri/config.kdl          system niri config (niri default + "ergon:" changes)
   etc/greetd/config.toml       greetd -> noctalia-greeter-session
   etc/xdg-desktop-portal/      portal routing for niri
+  etc/profile.d/ergon-prompt.sh  starts Starship (falls back to a short Fedora prompt)
+  etc/xdg/fastfetch/           fastfetch config (ergon logo)
+  etc/dconf/db/distro.d/       GTK icon/cursor/font defaults
+  etc/firefox/policies/        installs the Pywalfox extension
   usr/lib/...                  services, tmpfiles, environment.d, bootc kargs
-  usr/share/ergon/             Flatpak list, per-user default config
+  usr/share/ergon/             Flatpak list, per-user default config, greeter appearance, Noctalia plugin
+  usr/share/plymouth/themes/   ergon boot splash
 branding/                  ergon emblem (full colour + single-colour cut-out)
+  generate.py                  renders wallpapers/, plymouth/ and fastfetch/ from the emblem
+  wallpapers/, plymouth/, fastfetch/  rendered output (committed; the build only copies it)
 image-template.env         image name / org used by the Justfile and CI
 ```
 
@@ -145,4 +167,8 @@ image-template.env         image name / org used by the Justfile and CI
 - **Packages**: edit the arrays in `build_files/build.sh`.
 - **Fedora release**: bump `base-main:44` in the `Containerfile` and the `PRETTY_NAME` line in `build.sh`.
   Renovate opens a PR for new base tags.
+- **Branding**: after changing `branding/ergon-emblem.svg` or `generate.py`, run `python3 branding/generate.py`
+  (needs ImageMagick with librsvg, numpy, scipy and Pillow) and commit the output. The boot splash theme is
+  `system_files/usr/share/plymouth/themes/ergon`; `build.sh` rebuilds the initramfs so it takes effect.
+- **Bibata cursor**: bump `bibata_version` and `bibata_sha256` in `build.sh`.
 - After changing `system_files/etc/niri/config.kdl`, check it with `niri validate -c system_files/etc/niri/config.kdl`.

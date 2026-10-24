@@ -1,0 +1,92 @@
+"$schema" = "https://starship.rs/config-schema.json"
+palette = "noctalia"
+
+# ergon: a short one-line prompt.
+#   …/Entelect/data ❯                     locally (in a git repo: path from the repo root, branch, status)
+#   richter@rampage …/Entelect/data ❯     over SSH (and ⬢ in a distrobox/toolbox container)
+# Colours are palette names: Noctalia's starship template rewrites the palette block at the end
+# of this file whenever the theme changes (the copy below is the ergon palette, for first login).
+# Options: https://starship.rs/config/
+add_newline = false
+format = "$container$username$hostname$directory$git_branch$git_state$git_status$python$cmd_duration$jobs$character"
+
+[character]
+success_symbol = "[❯](bold flamingo)"
+error_symbol = "[❯](bold red)"
+
+[directory]
+truncation_length = 2 # last two directories
+truncation_symbol = "…/"
+style = "bold flamingo"
+read_only = " ro"
+format = "[$path]($style)[$read_only]($read_only_style) "
+
+[username]
+format = "[$user]($style)@"
+style_user = "bold green"
+
+[hostname]
+format = "[$hostname]($style) "
+style = "bold green"
+
+[container]
+symbol = "⬢"
+format = "[$symbol]($style) "
+style = "bold sky"
+
+[git_branch]
+symbol = ""
+format = "[$branch]($style) "
+style = "peach"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "red"
+
+[python] # only shows an active virtualenv
+format = "([\\($virtualenv\\)]($style) )"
+detect_extensions = []
+detect_files = []
+style = "yellow"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "subtext0"
+
+[jobs]
+symbol = "✦"
+style = "sky"
+
+# >>> NOCTALIA STARSHIP PALETTE >>>
+[palettes.noctalia]
+blue      = "#7ea4c8"
+red       = "#e5574f"
+green     = "#93be7f"
+yellow    = "#e3b66b"
+cyan      = "#72b5ad"
+magenta   = "#c690b8"
+white     = "#cfc8c2"
+black     = "#2a2a33"
+rosewater = "#f0cb86"
+flamingo  = "#f2765c"
+pink      = "#dba9cc"
+mauve     = "#c690b8"
+maroon    = "#f2765c"
+peach     = "#f0cb86"
+teal      = "#72b5ad"
+sky       = "#8fcfc7"
+sapphire  = "#9bbddd"
+lavender  = "#dba9cc"
+text      = "#ece6e1"
+subtext1  = "#cfc8c2"
+subtext0  = "#5a5a66"
+overlay2  = "#5a5a66"
+overlay1  = "#5a5a66"
+overlay0  = "#2a2a33"
+surface2  = "#2a2a33"
+surface1  = "#2a2a33"
+surface0  = "#1c1c23"
+base      = "#1c1c23"
+mantle    = "#1c1c23"
+crust     = "#1c1c23"
+# <<< NOCTALIA STARSHIP PALETTE <<<

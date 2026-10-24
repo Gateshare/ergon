@@ -1,0 +1,38 @@
+# CPU or RAM usage for the bar, coloured by fixed thresholds: normal text colour, then yellow
+# above warn_percent and red at critical_percent. Noctalia's built-in sysmon widget fades
+# towards a single highlight colour instead, so it can't show three distinct states.
+
+id = "ergon/sysmon"
+name = "ergon usage"
+version = "1.0.0"
+plugin_api = 12
+author = "ergon"
+license = "MIT"
+icon = "cpu-usage"
+description = "CPU or RAM usage that turns yellow, then red, past fixed thresholds."
+
+[[widget]]
+id = "usage"
+entry = "usage.luau"
+
+  [[widget.setting]]
+  key = "stat"
+  type = "select"
+  label_key = "settings.stat.label"
+  default = "cpu"
+  options = [
+    { value = "cpu", label_key = "settings.stat.cpu" },
+    { value = "ram", label_key = "settings.stat.ram" },
+  ]
+
+  [[widget.setting]]
+  key = "warn_percent"
+  type = "int"
+  label_key = "settings.warn_percent.label"
+  default = 80
+
+  [[widget.setting]]
+  key = "critical_percent"
+  type = "int"
+  label_key = "settings.critical_percent.label"
+  default = 90

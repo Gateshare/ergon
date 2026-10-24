@@ -4,6 +4,11 @@ set -euo pipefail
 list=/usr/share/ergon/flatpaks.list
 stamp=/var/lib/ergon/flatpaks.sha256
 
+# Let Flatpak apps read the GTK and KDE colours Noctalia writes, so they follow the theme too.
+flatpak override --system \
+	--filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro \
+	--filesystem=xdg-config/kdeglobals:ro
+
 sum=$(sha256sum "$list" | cut -d' ' -f1)
 [[ -f "$stamp" && "$(cat "$stamp")" == "$sum" ]] && exit 0
 
